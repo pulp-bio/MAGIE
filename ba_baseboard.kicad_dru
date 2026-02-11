@@ -1,0 +1,129 @@
+(version 1)
+# Custom Design Rules (DRC) for KiCAD 7.0 (Stored in '<project>.kicad_dru' file).
+#
+# Matching JLCPCB capabilities: https://jlcpcb.com/capabilities/pcb-capabilities
+#
+# KiCad documentation: https://docs.kicad.org/master/id/pcbnew/pcbnew_advanced.html#custom_design_rules
+#
+# Inspiration
+# - https://gist.github.com/darkxst/f713268e5469645425eed40115fb8b49 (with comments)
+# - https://gist.github.com/denniskupec/e163d13b0a64c2044bd259f64659485e (with comments)
+
+(rule "Track width, outer layer (1oz copper)"
+    (layer outer)
+    (condition "A.Type == 'track'")
+    (constraint track_width (min 0.10mm))
+)
+
+(rule "Track spacing, outer layer (1oz copper)"
+    (layer outer)
+    (condition "A.Type == 'track' && B.Type == A.Type")
+    (constraint clearance (min 0.10mm))
+)
+
+(rule "Track width, inner layer"
+    (layer inner)
+    (condition "A.Type == 'track'")
+    (constraint track_width (min 0.09mm))
+)
+
+(rule "Track spacing, inner layer"
+    (layer inner)
+    (condition "A.Type == 'track' && B.Type == A.Type")
+    (constraint clearance (min 0.09mm))
+)
+
+(rule "Silkscreen text"
+    (layer "?.Silkscreen")
+    (condition "A.Type == 'Text' || A.Type == 'Text Box'")
+    (constraint text_thickness (min 0.15mm))
+    (constraint text_height (min 0.8mm))
+)
+
+(rule "Pad to Silkscreen"
+    (layer outer)
+    (condition "A.Type == 'pad' && B.Layer == '?.Silkscreen'")
+    (constraint silk_clearance (min 0.15mm))
+)
+
+(rule "Edge (routed) to track clearance"
+    (condition "A.Type == 'track'")
+    (constraint edge_clearance (min 0.2mm))
+)
+
+#(rule "Edge (v-cut) to track clearance"
+#    (condition "A.Type == 'track'")
+#    (constraint edge_clearance (min 0.4mm))
+#)
+
+# JLCPCB spec: 1-layer 0.3-6.3mm, 2-layer & multilayer 0.15-6.3mm
+# 0.15mm vias cost more; preferred min via hole is 0.2mm
+# This rule handles diameter minimum and maximum for ALL holes.
+# Other specialized rules handle restrictions (e.g. Via, PTH, NPTH) 
+(rule "Hole diameter"
+    (constraint hole_size (min 0.15mm) (max 6.3mm))
+)
+
+(rule "Hole (NPTH) diameter"
+    (layer outer)
+    (condition "!A.isPlated()")
+    (constraint hole_size (min 0.5mm))
+)
+
+# JLCPCB: Hole to board edge ≥ 1 mm, hole-to-hole ≥ 0.5 mm. Min. board size 10 × 10 mm, thickness ≥ 0.6 mm
+(rule "Hole (castellated) diameter"
+    (layer outer)
+    (condition "A.Type == 'pad' && A.Fabrication_Property == 'Castellated pad'")
+    (constraint hole_size (min 0.5mm))
+)
+
+# Annular ring split per object type to align with JLCPCB guidance
+# Via diameter should be hole + 0.1mm (0.15mm preferred)
+# Adjust upward manually (e.g., 0.254mm) when using 2 oz copper where required.
+(rule "Annular ring width (via)"
+    (layer outer)
+    (condition "A.Type == 'via'")
+    (constraint annular_width (min 0.075mm))
+)
+
+(rule "Annular ring width (PTH pad)"
+    (layer outer)
+    (condition "A.Type == 'pad' && A.isPlated()")
+    (constraint annular_width (min 0.10mm))
+)
+
+(rule "Clearance: hole to hole (perimeter), different nets"
+    (layer outer)
+    (condition "A.Net != B.Net")
+    (constraint hole_to_hole (min 0.45mm))
+)
+
+(rule "Clearance: hole to hole (perimeter), same net"
+    (layer outer)
+    (condition "A.Net == B.Net")
+    (constraint hole_to_hole (min 0.20mm))
+)
+
+(rule "Clearance: track to NPTH hole (perimeter)"
+#    (condition "A.Pad_Type == 'NPTH, mechanical' && B.Type == 'track' && A.Net != B.Net")
+    (condition "!A.isPlated() && B.Type == 'track' && A.Net != B.Net")
+    (constraint hole_clearance (min 0.20mm))
+)
+
+(rule "Clearance: track to PTH hole perimeter"
+    (condition "A.isPlated() && A.Type == 'pad' && B.Type == 'track' && A.Net != B.Net")
+    (constraint hole_clearance (min 0.28mm))
+)
+
+# JLCPCB: Pad to track clearance min 0.1mm (0.09mm locally for BGA)
+(rule "Clearance: track to pad"
+    (condition "A.Type == 'pad' && B.Type == 'track' &&  A.Net != B.Net")
+    (constraint clearance (min 0.10mm))
+)
+
+(rule "Clearance: pad/via to pad/via"
+    (layer outer)
+#    (condition "(A.Type == 'Pad' || A.Type == 'Via') && (B.Type == 'Pad' || B.Type == 'Via') && A.Net != B.Net")    
+    (condition "A.isPlated() && B.isPlated() && A.Net != B.Net")
+    (constraint clearance (min 0.15mm))
+)
