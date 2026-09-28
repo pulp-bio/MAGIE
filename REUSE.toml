@@ -1,0 +1,38 @@
+version = 1
+SPDX-PackageName = "MAGIE_hardware"
+SPDX-PackageSupplier = "Integrated Systems Laboratory, ETH Zurich"
+
+# Hardware design sources, jobsets and generated manufacturing outputs
+[[annotations]]
+path = [
+    "**/*.kicad_pro",
+    "**/*.kicad_sch",
+    "**/*.kicad_pcb",
+    "**/*.kicad_dru",
+    "**/*.kicad_jobset",
+    "hw/baseboard/production/**",
+    "**/fabrication-toolkit-options.json",
+    ".gitignore",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025-2026 ETH Zurich"
+SPDX-License-Identifier = "SHL-0.51"
+
+[[annotations]]
+path = [
+    "hw/baseboard/MAGIE_baseboard.kicad_pcb",
+    "hw/pulser_frontend/MAGIE_pulser_frontend.kicad_pcb",
+    "hw/pulser_interface_tester/MAGIE_pulser_interface_tester.kicad_pcb",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = [
+    "2025-2026 ETH Zurich",
+]
+SPDX-License-Identifier = "SHL-0.51"
+
+# Documentation, citation metadata and images
+[[annotations]]
+path = ["**/*.md", "CITATION.cff", "REUSE.toml", "hw/baseboard/assets/*.png"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025-2026 ETH Zurich"
+SPDX-License-Identifier = "CC-BY-4.0"

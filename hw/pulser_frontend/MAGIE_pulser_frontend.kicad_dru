@@ -1,0 +1,241 @@
+ (version 1)
+# Contag 8-layer Option A DRC (KiCad 7 Custom Rules)
+# Stack summary (Top→Bottom): L1 HS JESD204B / L2 GND / L3 SIG / L4 PWR / L5 GND / L6 SIG / L7 GND / L8 HS JESD204B
+# Outer dielectric ~0.11 mm to plane, CPWG target: 100 Ω diff (≈50 Ω single) with W≈0.14 mm, intra-pair gap≈0.18-0.20 mm, ground gap≈0.15 mm.
+# Standard fabrication capability (Contag): 0.125 mm min track & space. We keep margin; only tighten with explicit netclass.
+
+# ----------------------------------- Global minimum trace width & spacing --------------------
+(rule "Global Min Track/Space"
+ (constraint track_width (min 0.1mm)(max 2mm))
+ (constraint clearance (min 0.1mm))
+ (layer outer)
+ (condition "A.Type == 'track'"))
+
+
+(rule "Global Min Track/Space Inner"
+ (constraint track_width (min 0.1mm))
+ (constraint clearance (min 0.1mm))
+ (layer inner)
+ (condition "A.Type == 'track'&& B.Type != 'zone'"))
+
+(rule "Zone Min Track/Space Inner"
+ (constraint clearance (min 0.25mm))
+ (layer inner)
+ (condition "A.Type == 'track'&& B.Type == 'zone'"))
+
+
+# High-speed JESD204B netclass guidance 
+# Enforces controlled width; clearance rule below increases isolation to other nets.
+(rule "JESD204B Width"
+ (constraint track_width (min 0.184mm) (max 0.19mm))
+ (layer outer)
+ (condition "A.NetClass == 'JESD204B' && A.Type == 'track'"))
+
+
+
+#(rule "JESD204B Clearance To Others"
+# (constraint clearance (min 0.4mm))
+# (layer outer)
+# (condition "A.NetClass == 'JESD204B' && A.Type == 'track'"))
+
+# Prevent zones shrinking geometry below global min (tracks inside zones still obey track rules; exclude zones from width rule conditions above).
+(rule "Zone Min Spacing"
+ (constraint clearance (min 0.2mm))
+ (condition "A.Type == 'zone' || B.Type == 'zone'"))
+
+# ------------------------------------------------------------------------------------------------------
+
+# ----------------------------------- General drill / mechanical --------------------------------------
+(rule "Mechanical Drill Range"
+ (constraint hole_size (min 0.15mm) (max 6.0mm)))
+
+# ----------------------------------- Via hole/diameter size (PICK ONE) ------------------------------------
+
+
+# Via sizing (through vias used; choose ≥0.25 mm drill → ≈0.20 mm finished for HS nets; allow down to 0.15 mm only for dense areas)
+# (rule "Via Hole & Diameter Standard"
+#  (constraint hole_size (min 0.20mm))
+#  (constraint via_diameter (min 0.40mm))
+#  (condition "A.Type == 'via'"))
+
+(rule "Via Hole Reduced (Allowed)"
+ (constraint hole_size (min 0.15mm))
+ (constraint via_diameter (min 0.30mm))
+ (condition "A.Type == 'via'"))
+
+
+# ----------------------------------- Drill/hole size ------------------------------------
+
+(rule "PTH Hole Size"
+ (constraint hole_size (min 0.30mm) (max 6.0mm))
+ (condition "A.Type != 'Via' && A.isPlated()"))
+
+(rule "Minimum Non-plated Hole Size"
+(constraint hole_size (min 0.5mm))
+(condition "A.Type == 'pad' && !A.isPlated()"))
+
+(rule "Pad Annular Ring"
+ (constraint annular_width (min 0.10mm))
+ (condition "A.Type == 'Pad' && A.isPlated()"))
+
+(rule "Minimum Castellated Hole Size"
+(constraint hole_size (min 0.6mm))
+(condition "A.Type == 'pad' && A.Fabrication_Property == 'Castellated pad'"))
+
+(rule "Min. Plated Slot Width"
+(constraint hole_size (min 0.5mm))
+(condition "(A.Hole_Size_X != A.Hole_Size_Y) && A.isPlated()"))
+
+(rule "Min. Non-Plated Slot Width"
+(constraint hole_size (min 0.8mm))
+(condition "(A.Hole_Size_X != A.Hole_Size_Y) && !A.isPlated()"))
+
+#(rule "Zone Settings"
+#    (constraint clearance (max 0.25mm))            
+#    (constraint track_width (max 0.25mm))           
+#    (constraint thermal_relief_gap (min 0.15mm))   
+#    (constraint thermal_spoke_width (max 0.2mm))
+#(constraint zone_connection solid) 
+#)
+#
+# ----------------------------------- Minimum clearance ----------------------------------
+(rule "hole to hole clearance (different nets)"
+(constraint hole_to_hole (min 0.25mm))
+(condition "A.Net != B.Net"))
+
+(rule "Via To Track Clearance"
+ (constraint hole_clearance (min 0.15mm))
+ (condition "A.Type == 'via' && B.Type == 'track'"))
+
+(rule "via to via clearance (same nets)"
+(constraint hole_to_hole (min 0.2mm))
+(condition "A.Type == 'via' && B.Type == A.Type && A.Net == B.Net"))
+
+(rule "pad to pad clearance (with hole, different nets)"
+(constraint hole_to_hole (min 0.4mm))
+(condition "A.Type == 'pad' && B.Type == A.Type && A.Net != B.Net"))
+
+(rule "SMD Pad To Pad Clearance"
+ (constraint clearance (min 0.10mm))
+ (condition "A.Type == 'Pad' && B.Type == 'Pad'"))
+
+(rule "NPTH to Track clearance"
+(constraint hole_clearance (min 0.25mm))
+(condition "A.Pad_Type == 'NPTH, mechanical' && B.Type == 'track'"))
+
+(rule "NPTH with copper around"
+(constraint hole_clearance (min 0.15mm))
+(condition "A.Pad_Type == 'NPTH, mechanical' && B.Type != 'track'"))
+
+(rule "PTH to Track clearance"
+(constraint hole_clearance (min 0.15mm))
+(condition "A.isPlated() && A.Type != 'Via' && B.Type == 'track'"))
+
+(rule "Pad to Track clearance"
+(constraint clearance (min 0.2mm))
+(condition "A.isPlated() && A.Type != 'Via' && B.Type == 'track'"))
+
+
+
+# ----------------------------------- Board Outlines (PICK ONE) -------------------------------------
+#Default Routed Edge Clearance
+
+ (rule "Trace to Outline"
+ (constraint edge_clearance (min 0.20mm))
+ (condition "A.Type == 'track'"))
+
+#Special Clearance for V-Score Edges
+#(rule "Trace to V-Cut"
+#(constraint edge_clearance (min 0.4mm))
+#(condition "A.Type == 'track'"))
+
+# ----------------------------------- silkscreen --------------------------
+ (rule "Minimum Text"
+ (constraint text_thickness (min 0.15mm))
+ (constraint text_height (min 0.8mm))
+ (layer "?.Silkscreen"))
+
+ (rule "Pad to Silkscreen"
+ (constraint silk_clearance (min 0.01mm))
+ (layer outer)
+ (condition "A.Type == 'pad' && (B.Type == 'text' || B.Type == 'graphic')"))
+
+# ----------------------------------- Notes -----------------------------------
+# - Define NetClass 'JESD204B' with differential pair settings (gap ≈0.18-0.20 mm) in Board Setup → Design Rules → Net Classes.
+# - Use CPWG pours tied to GND with stitching vias every 2-3 mm along JESD pairs for consistent impedance.
+# - Back-drill high-speed through-vias if unused stub >0.5 mm.
+# - Adjust any value here if fab impedance coupon feedback differs; keep min manufacturing rules at or above Contag standard.
+
+
+# ================== Added Custom Rules (Clocks, Impedance Geometry, High Voltage) ==================
+
+
+#(rule "All Diff Pair Skew ≤1mm"
+# (constraint skew (min -1mm)(max 1mm))
+# (condition "A.inDiffPair('*')"))
+#
+#
+#(rule "CLKS_AFE Length ≤80mm"
+# (constraint length (min 72.0mm)(opt 80mm)(max 80.1mm))
+# (condition "A.NetClass == 'CLKS_AFE'"))
+#
+
+(rule "CLKS_AFE Length 450ps"
+ (constraint length (opt 460ps))
+ (condition "A.NetClass == 'CLKS_AFE'"))
+
+
+(rule "50Ω Width Constraint"
+ (layer outer)
+ (constraint track_width (min 0.3mm) (opt 0.32mm) (max 0.33mm))
+ (condition "A.hasNetclass('50Ω') && A.Type == 'track' && A.NetName != '*TX_TRIG'"))
+
+# Differential 100Ω (50Ω single-ended) net class geometry: width & pair gap.
+# Target: W≈0.14 mm, gap≈0.18-0.20 mm (opt 0.19 mm) for ~100Ω diff in this stack.
+(rule "DIFF Pair Geometry"
+ (layer outer)
+ (constraint track_width (min 0.18mm) (opt 0.185mm) (max 0.25mm))
+ (constraint diff_pair_gap (min 0.1mm) (opt 0.125mm) (max 0.9mm))
+ (condition "A.hasNetclass('DIFF') && A.inDiffPair('*')"))
+
+# Internal layer differential pair geometry (target ~100Ω diff internal). Width = 0.10 mm, gap = 0.22 mm.
+(rule "DIFF Pair Geometry Inner"
+ (layer inner)
+ (constraint track_width (min 0.10mm) (opt 0.10mm) (max 0.12mm))
+ (constraint diff_pair_gap (min 0.18mm) (opt 0.22mm) (max 0.30mm))
+ (condition "A.hasNetclass('DIFF') && A.inDiffPair('*')"))
+
+(rule "DIFF Uncoupled Length"
+ (constraint diff_pair_uncoupled (max 30mm))
+ (condition "A.hasNetclass('DIFF') && A.inDiffPair('*')"))
+
+# High Voltage (HV) net class creepage & clearance for up to 100V.
+# IPC-2221 external clearance guideline ~0.4 mm for ≤200V, coated; using 0.4 mm clearance .
+(rule "HV Pad Clearance & Creepage"
+ (constraint clearance (min 0.4mm))
+# (constraint creepage (min 1.0mm))
+ (condition "(A.hasNetclass('HV') || B.hasNetclass('HV')) && A.Type == 'pad' && B.Type == 'pad'"))
+
+(rule "HV Non-Pad Clearance & Creepage"
+ (constraint clearance (min 0.15mm))
+# (constraint creepage (min 1.0mm))
+ (condition "(A.hasNetclass('HV') || B.hasNetclass('HV')) && (A.Type != 'pad' || B.Type != 'pad')"))
+
+#(rule "HV Physical Clearance Same Net"
+# (constraint physical_clearance (min 0.2mm))
+# (condition "A.hasNetclass('HV') && B.hasNetclass('HV')"))
+#
+# ================================================================================================
+
+# Native QR code with the documentation link. It sits over a tented GND stitching via and
+# just under 1 mm from the board-info silkscreen, like the QR image on the manufactured V1 board,
+# so KiCad's default 1 mm barcode quiet zone is relaxed for it.
+(rule "QR code quiet zone"
+ (constraint physical_clearance (min 0mm))
+ (condition "A.Type == 'Barcode'"))
+
+# GND fill on the non-GND inner layers (In2/In3/In5): keep 0.9 mm from every other net.
+# Must stay the last rule so it overrides the netclass/HV clearances for this zone.
+(rule "GND_INNER_FILL clearance"
+ (constraint clearance (min 0.9 mm))
+ (condition "A.Type == 'Zone' && A.Name == 'GND_INNER_FILL'"))

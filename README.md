@@ -1,33 +1,66 @@
-# Baseboard for K26 SOM and Biochip
+# MAGIE Hardware
 
-This Baseboard PCB is able to connect the Biochip directly to the FPGA-fabric. It has a 10 Gbit/s SFP+ interface to transfer data to a host PC. The PCB is supplied with 12 V by an external power supply. The board is able to provide power to the K26 SOM, Biochip and all peripherals on the PCB.
+Hardware of **MAGIE** (Multichannel Acquisition Gigabit Interface Engine), a retargetable FPGA-based acquisition platform developed at the Integrated Systems Laboratory (IIS), ETH Zurich.
 
-The design of this PCB is open source, licensed under the Solderpad Hardware License \- Version 0.51 (SHL-0.51).
+This repository contains the KiCad sources and documentation of the MAGIE boards:
 
-![Baseboard with K26 and Biochip connected](/assets/system_free.png) Baseboard PCB with K26 and Fanout-Board with Biochip connected
+- the **baseboard**: an AMD Kria K26 carrier that connects high-density biosensor arrays to the FPGA fabric and streams their data over 10 Gbit/s SFP+ Ethernet;
+- the **ultrasound boards**: a 64-channel ultrasound pulser frontend and two boards for testing it.
 
-## Power Supplies
-The board is supplied with 12 V through a barrel connector by an external power supply. The PS- and PL-domain supplies are enabled by the FPGA or a 1.8 V potential supplied to the corresponding pads. To supply the board with the voltage rails, the pin headers need to be bridged.
+![MAGIE baseboard with K26 SOM and biochip fan-out board](hw/baseboard/assets/system_free.webp)
+*MAGIE baseboard with the Kria K26 SOM and the fan-out board carrying the biochip.*
 
-## Kria K26 SOM
-The K26 can be interfaced by the UART (USB-C) or JTAG (Digilent HS2 programming cable) interface. The SOM should be able to boot from the micro-SD-card.
+## Boards
 
-## Biochip
-The biochip is connected via a fanout-board to the SEAM connector on the bottom of the PCB.
+| Board | Folder | Revision | Description |
+|---|---|---|---|
+| [Baseboard](hw/baseboard/) | `hw/baseboard/` | V2.1 | Kria K26 carrier with SFP+, 1 GbE, biochip supplies, 16 bias outputs and a 240-pin biosensor connector |
+| [Pulser frontend](hw/pulser_frontend/) | `hw/pulser_frontend/` | 1.1 | 64-channel ±100 V ultrasound transmit frontend |
+| [Frontend tester](hw/frontend_tester/) | `hw/frontend_tester/` | V1 | Adapter from the pulser frontend's PCIe x16 card edge to an FMC connector |
+| [Pulser interface tester](hw/pulser_interface_tester/) | `hw/pulser_interface_tester/` | V1 | Break-out of the 64 pulser channels to headers and SMA connectors |
 
-The chip is configured by the FPGA. It is supplied by LDOs. The variable voltage rail AVDD2 (1.5 - 2.5 V) can be configured through a digital potentiometer by the FPGA.
+Each board folder is a self-contained KiCad project with its own README, which covers the board, its connectors, known errata and how to generate the manufacturing outputs.
 
-The bias voltages are configured through digital potis by the FPGA or manual potis with a screwdriver. 0603 resistors can be placed on pads to set voltage dividers manually.
+## Repository layout
 
-The analog outputs of the biochip are available on pin headers.
+```text
+.
+├── hw/
+│   ├── baseboard/                 # MAGIE baseboard (Kria K26 carrier)
+│   ├── pulser_frontend/           # 64-channel ultrasound pulser frontend
+│   ├── frontend_tester/           # frontend-to-FMC adapter
+│   └── pulser_interface_tester/   # pulser channel break-out
+├── LICENSES/                      # license texts
+├── REUSE.toml                     # per-file license map
+└── CITATION.cff                   # citation metadata
+```
 
-## Errata
-So far, no mayor hardware bugs have been found yet. Minor problems to improve in future revisions are listed below:
-- Fan Power Cable:
-The power cable of the fan provided with the Kria KR260 Robotics Starter Kit is too short to connect to the fan-header on the PCB.
+## Opening the designs
 
-- Inductor L1 (5 V power supply output):
-Before operational use, the inductor L1 at the output of the 5 V supply needs to be replaced with one rated for > 8 A.
+Open the `.kicad_pro` file in a board folder with **KiCad 10.0**. The schematics and PCBs contain embedded copies of all symbols and footprints, so you can view, check and fabricate the designs without extra libraries.
 
-- SFP+ connector:
-The SFP+ connector does not engage properly with a plugged in transceiver. Data transfer should still be possible.
+Some vendor 3D models are not redistributed. The boards that use them have a `3d_vendor/README.md` that explains where to get them.
+
+## Safety
+
+The pulser frontend and the pulser interface tester carry pulses up to ±100 V. Read the safety notes in their READMEs before you power them.
+
+## Contributors
+- Federico Villani: baseboard V2 design, ultrasound boards design, review and project supervision
+- Pascal Wesemann: original baseboard design (V1) (available at https://gitlab.ethz.ch/ltl/theses/biochip/biochip_pcb)
+- Tim Frey: MAGIE platform integration and validation (not included in this repository)
+
+Supervision: Federico Villani, Dr. Hangxing Liu,  Prof. Dr. Luca Benini (Integrated Systems Laboratory, ETH Zurich).
+
+## Citation
+
+If you use this hardware, please cite it using **TODO ADD AFTER ARXIV SUBMISSION**
+
+## License
+
+| Content | License |
+|---|---|
+| Hardware design files (`*.kicad_*`, jobsets, `hw/baseboard/production/`) | [Solderpad Hardware License v0.51](LICENSES/SHL-0.51.txt) (`SHL-0.51`) |
+| Documentation and images (`*.md`, `hw/baseboard/assets/`) | [Creative Commons Attribution 4.0](LICENSES/CC-BY-4.0.txt) (`CC-BY-4.0`) |
+
+The per-file mapping is in [`REUSE.toml`](REUSE.toml).

@@ -1,0 +1,195 @@
+{
+  "jobs": [
+    {
+      "description": "",
+      "id": "20b7c398-d23c-4ea1-9323-fbe9a0f05c8d",
+      "settings": {
+        "description": "",
+        "disable_aperture_macros": false,
+        "drawing_sheet": "",
+        "include_netlist_attributes": true,
+        "layers": [
+          "F.Cu",
+          "In1.Cu",
+          "In2.Cu",
+          "In3.Cu",
+          "In4.Cu",
+          "In5.Cu",
+          "In6.Cu",
+          "B.Cu",
+          "F.Paste",
+          "B.Paste",
+          "F.SilkS",
+          "B.SilkS",
+          "F.Mask",
+          "B.Mask",
+          "Edge.Cuts",
+          "F.Fab",
+          "B.Fab"
+        ],
+        "layers_include_on_all": [],
+        "layers_include_on_all_set": false,
+        "layers_to_include_on_all_layers": [],
+        "output_filename": "./gerbers",
+        "plot_drawing_sheet": false,
+        "plot_footprint_values": true,
+        "plot_invisible_text": false,
+        "plot_pad_numbers": false,
+        "plot_ref_des": true,
+        "precision": 6,
+        "subtract_solder_mask_from_silk": true,
+        "use_drill_origin": false,
+        "use_protel_file_extension": false,
+        "use_x2_format": true
+      },
+      "type": "pcb_export_gerbers"
+    },
+    {
+      "description": "",
+      "id": "1f07abb3-8b66-4304-8755-37b61f8f1cfb",
+      "settings": {
+        "description": "",
+        "drill_origin": "abs",
+        "excellon.combine_pth_npth": true,
+        "excellon.minimal_header": false,
+        "excellon.mirror_y": false,
+        "excellon.oval_drill_route": true,
+        "format": "excellon",
+        "generate_map": true,
+        "gerber_precision": 5,
+        "map_format": "postscript",
+        "output_dir": "./drill",
+        "units": "mm",
+        "zero_format": "decimal"
+      },
+      "type": "pcb_export_drill"
+    },
+    {
+      "description": "",
+      "id": "393f47a9-2719-4fac-885d-dab2c71fd7ae",
+      "settings": {
+        "bom_format_preset_name": "CSV",
+        "bom_preset_name": "",
+        "description": "",
+        "exclude_dnp": true,
+        "field_delimiter": ",",
+        "fields_group_by": [
+          "Value",
+          "MPN",
+          "Footprint"
+        ],
+        "fields_labels": [
+          "Reference",
+          "Value",
+          "Manufacturer",
+          "MPN",
+          "LCSC",
+          "Footprint",
+          "Qty",
+          "Description",
+          "Datasheet"
+        ],
+        "fields_ordered": [
+          "Reference",
+          "Value",
+          "Manufacturer",
+          "MPN",
+          "LCSC",
+          "Footprint",
+          "${QUANTITY}",
+          "Description",
+          "Datasheet"
+        ],
+        "filter_string": "",
+        "include_excluded_from_bom": false,
+        "keep_line_breaks": false,
+        "keep_tabs": false,
+        "output_filename": "./assembly/bom.csv",
+        "ref_delimiter": ",",
+        "ref_range_delimiter": "",
+        "sort_asc": true,
+        "sort_field": "Reference",
+        "string_delimiter": "\""
+      },
+      "type": "sch_export_bom"
+    },
+    {
+      "description": "",
+      "id": "c10de4ba-9622-4b69-9b75-7fab8eee70d1",
+      "settings": {
+        "description": "",
+        "exclude_dnp": true,
+        "exclude_footprints_with_th": false,
+        "format": "csv",
+        "gerber_board_edge": true,
+        "negate_bottom_x": false,
+        "output_filename": "./assembly/position.pos",
+        "side": "both",
+        "single_file": true,
+        "smd_only": false,
+        "units": "mm",
+        "use_drill_place_file_origin": true
+      },
+      "type": "pcb_export_pos"
+    },
+    {
+      "description": "",
+      "id": "2d79a902-41ac-4ec0-9db2-3c682cf02369",
+      "settings": {
+        "black_and_white": false,
+        "color_theme": "KiCad Classic",
+        "description": "",
+        "drawing_sheet": "",
+        "format": "pdf",
+        "hpgl_page_size": "default",
+        "hpgl_pen_size": 1.0,
+        "hpgl_plot_origin": "A3",
+        "min_pen_width": 1000,
+        "output_filename": "${PROJECTNAME}_v${REVISION}_schematic.pdf",
+        "page_size": "auto",
+        "pdf_hierarchical_links": true,
+        "pdf_metadata": true,
+        "pdf_property_popups": true,
+        "plot_all": true,
+        "plot_drawing_sheet": true,
+        "use_background_color": true
+      },
+      "type": "sch_export_plot_pdf"
+    }
+  ],
+  "meta": {
+    "version": 1
+  },
+  "outputs": [
+    {
+      "description": "Fabrication_folder",
+      "id": "b76c853a-dde9-4498-ae83-ec2e243076d3",
+      "only": [],
+      "settings": {
+        "output_path": "./production/${PROJECTNAME}"
+      },
+      "type": "folder"
+    },
+    {
+      "description": "Fabrication_zip",
+      "id": "29b5e6a6-c692-44e9-9a45-15cadc4eed39",
+      "only": [],
+      "settings": {
+        "format": "zip",
+        "output_path": "./production/${PROJECTNAME}_fabrication.zip"
+      },
+      "type": "archive"
+    },
+    {
+      "description": "Schematic",
+      "id": "96b5a027-2068-4aee-9e92-8d3ebdae4d4b",
+      "only": [
+        "2d79a902-41ac-4ec0-9db2-3c682cf02369"
+      ],
+      "settings": {
+        "output_path": "./production/${PROJECTNAME}"
+      },
+      "type": "folder"
+    }
+  ]
+}
