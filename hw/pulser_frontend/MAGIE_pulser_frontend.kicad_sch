@@ -2253,7 +2253,7 @@
 	)
 	(wire
 		(pts
-			(xy 266.7 209.55) (xy 283.21 209.55)
+			(xy 266.7 210.82) (xy 283.21 210.82)
 		)
 		(stroke
 			(width 0)
@@ -4233,7 +4233,7 @@
 		(uuid "95e86058-4286-4472-b433-0ad1c04ec50d")
 	)
 	(label "PLS_DATAOUT3"
-		(at 283.21 209.55 180)
+		(at 283.21 210.82 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8218,7 +8218,7 @@
 			)
 		)
 		(pin "DATAOUT" output
-			(at 266.7 209.55 0)
+			(at 266.7 210.82 0)
 			(uuid "12c73a65-83c5-44a8-bb90-7f92b2cfa26c")
 			(effects
 				(font

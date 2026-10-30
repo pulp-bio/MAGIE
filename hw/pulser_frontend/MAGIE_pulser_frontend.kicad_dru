@@ -63,6 +63,10 @@
  (constraint via_diameter (min 0.30mm))
  (condition "A.Type == 'via'"))
 
+(rule "Via Outer Ring Reduced (JLCPCB min)"
+ (layer outer)
+ (constraint via_diameter (min 0.25mm))
+ (condition "A.Type == 'via'"))
 
 # ----------------------------------- Drill/hole size ------------------------------------
 
@@ -221,6 +225,10 @@
 # (constraint creepage (min 1.0mm))
  (condition "(A.hasNetclass('HV') || B.hasNetclass('HV')) && (A.Type != 'pad' || B.Type != 'pad')"))
 
+(rule "HV Added Via Ring Clearance (IPC-2221 B4)"
+ (layer "F.Cu")
+ (constraint clearance (min 0.13mm))
+ (condition "A.Type == 'via' && A.hasNetclass('HV') && A.Diameter < A.Hole + 0.11mm && B.Type != 'zone'"))
 #(rule "HV Physical Clearance Same Net"
 # (constraint physical_clearance (min 0.2mm))
 # (condition "A.hasNetclass('HV') && B.hasNetclass('HV')"))

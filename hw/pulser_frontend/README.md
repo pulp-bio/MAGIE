@@ -9,7 +9,7 @@ For bring-up, see the [frontend tester](../frontend_tester) and the [pulser inte
 
 | Revision | Date | Status |
 |---|---|---|
-| **1.1** | 2026-09 | **Current sources.**|
+| **1.1** | 2026-10 | **Current sources.** Via padstack and routing corrections synchronized from the LTL frontend; the four receive AFE devices remain omitted. |
 
 ## Board overview
 
